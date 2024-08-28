@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;400;700&display=swap" rel="stylesheet">
+    <title>Encriptador</title>
+    <style>
+        @media (max-width: 1176px) {
+            .caricatura {
+                display: none;
+            }
+            .botones {
+                display: flex;
+                flex-direction: column;
+                gap: 10px; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="seccion izquierda">
+            <header>
+                <img src="/Images/Logo_Alura_Latam.png" alt="Logotipo de Alura Latam" class="logo">
+            </header>
+            <textarea class="text-area" cols="30" rows="10" placeholder="Ingrese el texto aquí" aria-label="Área de texto para encriptar o desencriptar"></textarea>
+            <p class="informacion">Solo letras minúsculas y sin acentos</p>
+            <div class="botones" style="display: flex; gap: 10px;">
+                <button class="btn-encriptar" onclick="btnEncriptar()">
+                    <span class="btn-text">Encriptar</span>
+                    <span class="btn-loader"></span>
+                </button>
+                <button class="btn-desencriptar" onclick="btnDesencriptar()"> 
+                    <span class="btn-text">Desencriptar</span>
+                    <span class="btn-loader"></span>
+                </button>
+            </div>
+        </section>
+        <section class="seccion derecha">
+            <div>
+                <img src="/Images/Caricatura.png" alt="Caricatura" class="caricatura">
+                <p class="parrafo1">Ningún mensaje fue encontrado</p>
+                <p class="parrafo2">Ingresa el texto que desees encriptar o desencriptar</p>
+                <button class="copiar" onclick="copiarTexto()">Copiar</button>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        const textArea = document.querySelector(".text-area");
+        const mensaje = document.querySelector(".parrafo1");
+        const copiarBtn = document.querySelector(".copiar");
+        const caricatura = document.querySelector(".caricatura");
+        const parrafo2 = document.querySelector(".parrafo2");
+
+        function toggleLoader(button, show) {
+            const loader = button.querySelector(".btn-loader");
+            const text = button.querySelector(".btn-text");
+            if (show) {
+                loader.style.display = "inline-block";
+                text.style.display = "none";
+                button.classList.add("loading");
+            } else {
+                loader.style.display = "none";
+                text.style.display = "inline-block";
+                button.classList.remove("loading");
+            }
+        }
+
+        function btnEncriptar() {
+            const button = document.querySelector(".btn-encriptar");
+            toggleLoader(button, true);
+            const textoEncriptado = encriptar(textArea.value);
+            mensaje.textContent = textoEncriptado;
+            textArea.value = "";
+            copiarBtn.style.display = textoEncriptado ? "block" : "none"; // Mostrar el botón de copiar si hay texto encriptado
+            caricatura.style.display = "none"; // Ocultar la imagen
+            parrafo2.style.display = "none"; // Ocultar el texto
+            setTimeout(() => toggleLoader(button, false), 1000);
+        }
+
+        function encriptar(cadenaEncriptada) {
+            const matriz = [["e", "enter"], ["i", "imes"], ["a", "ai"], ["o", "ober"], ["u", "ufat"]];
+            cadenaEncriptada = cadenaEncriptada.toLowerCase();
+
+            for (let i = 0; i < matriz.length; i++) {
+                const [original, reemplazo] = matriz[i];
+                const regex = new RegExp(escapeRegExp(original), 'g');
+                cadenaEncriptada = cadenaEncriptada.replace(regex, reemplazo);
+            }
+            return cadenaEncriptada;
+        }
+
+        function btnDesencriptar() {
+            const button = document.querySelector(".btn-desencriptar");
+            toggleLoader(button, true);
+            const textoDesencriptado = desencriptar(textArea.value);
+            mensaje.textContent = textoDesencriptado;
+            textArea.value = "";
+            copiarBtn.style.display = textoDesencriptado ? "block" : "none"; // Mostrar el botón de copiar si hay texto desencriptado
+            setTimeout(() => toggleLoader(button, false), 1000);
+        }
+
+        function desencriptar(cadenaDesencriptada) {
+            const matriz = [["e", "enter"], ["i", "imes"], ["a", "ai"], ["o", "ober"], ["u", "ufat"]];
+            cadenaDesencriptada = cadenaDesencriptada.toLowerCase();
+
+            for (let i = 0; i < matriz.length; i++) {
+                const [original, reemplazo] = matriz[i];
+                const regex = new RegExp(escapeRegExp(reemplazo), 'g');
+                cadenaDesencriptada = cadenaDesencriptada.replace(regex, original);
+            }
+            return cadenaDesencriptada;
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function copiarTexto() {
+            const textoACopiar = mensaje.textContent; 
+            navigator.clipboard.writeText(textoACopiar)
+                .then(() => {
+                    console.log('Texto copiado al portapapeles');
+                })
+                .catch(err => {
+                    console.error('Error al copiar el texto: ', err);
+                });
+        }
+
+        // Inicialmente ocultar el botón de copiar
+        copiarBtn.style.display = "none";
+    </script>
+</body>
+</html>
